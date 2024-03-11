@@ -29,7 +29,7 @@ loadMoreBtn.addEventListener('click', async e => {
 
   const lastPage = Math.ceil(data.totalHits / perPage);
 
-  if (page === lastPage && page > perPage) {
+  if (page === lastPage) {
     loadMoreBtnHide();
     iziToast.error({
       messageColor: '#fff',
