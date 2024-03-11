@@ -89,7 +89,9 @@ formEl.addEventListener('submit', async e => {
       return;
     }
 
-    if (data.totalHits > perPage) {
+    if (data.totalHits < perPage) {
+      loadMoreBtnHide();
+    } else {
       loadMoreBtnShow();
     }
 
