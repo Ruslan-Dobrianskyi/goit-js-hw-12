@@ -6,21 +6,58 @@ import 'izitoast/dist/css/iziToast.min.css';
 // Додатковий імпорт стилів
 import 'simplelightbox/dist/simple-lightbox.min.css';
 import { getPhotos } from './js/pixabay-api';
-import { renderMarkup, refreshLightbox } from './js/render-functions';
+import { renderMarkup } from './js/render-functions';
 import falseSvg from './img/false.svg';
 import warningSvg from './img/warning.svg';
+import trueSvg from './img/true.svg';
 
 const formEl = document.querySelector('.js-hero-form');
 const photoEl = document.querySelector('.photos-list');
 const loaderEl = document.querySelector('.loader');
+const loadMoreBtn = document.querySelector('.js-load-more-btn');
 
-formEl.addEventListener('submit', e => {
+let page = 1;
+let userSearch;
+const perPage = 15;
+let photoHeight;
+
+loadMoreBtn.addEventListener('click', async e => {
+  showLoader();
+  page += 1;
+  const data = await getPhotos(userSearch, page);
+  renderMarkup(photoEl, data.hits);
+
+  const lastPage = Math.ceil(data.totalHits / perPage);
+
+  if (page === lastPage && page > perPage) {
+    loadMoreBtnHide();
+    iziToast.error({
+      messageColor: '#fff',
+      backgroundColor: '#ef4040',
+      iconUrl: falseSvg,
+      message: "We're sorry, but you've reached the end of search results.",
+    });
+  }
+
+  hideLoader();
+
+  const slowlyPhoto = document.querySelector('.photos__image');
+  photoHeight = slowlyPhoto.getBoundingClientRect().height;
+  window.scrollBy({
+    top: 2 * photoHeight,
+    behavior: 'smooth',
+  });
+});
+
+formEl.addEventListener('submit', async e => {
   e.preventDefault();
 
   photoEl.innerHTML = '';
+  page = 1;
 
-  const userSearch = e.target.elements.query.value.trim();
+  userSearch = e.target.elements.query.value.trim();
   if (userSearch === '') {
+    loadMoreBtnHide();
     iziToast.warning({
       titleColor: '#fff',
       messageColor: '#fff',
@@ -32,30 +69,45 @@ formEl.addEventListener('submit', e => {
 
     return;
   }
+
   showLoader();
-  getPhotos(userSearch)
-    .then(data => {
-      if (data.hits.length === 0) {
-        iziToast.error({
-          titleColor: '#fff',
-          messageColor: '#fff',
-          backgroundColor: '#ef4040',
-          iconUrl: falseSvg,
-          message:
-            'Sorry, there are no images matching<br> your search query. Please try again!',
-          position: 'topRight',
-        });
-        return;
-      }
-      renderMarkup(photoEl, data.hits);
-      refreshLightbox();
-    })
-    .catch(error => {
-      console.error(error);
-    })
-    .finally(() => {
+  try {
+    const data = await getPhotos(userSearch, page);
+    if (data.hits.length === 0) {
       hideLoader();
+      loadMoreBtnHide();
+      iziToast.error({
+        titleColor: '#fff',
+        messageColor: '#fff',
+        backgroundColor: '#ef4040',
+        iconUrl: falseSvg,
+        message:
+          'Sorry, there are no images matching<br> your search query. Please try again!',
+        position: 'topRight',
+      });
+      e.target.reset();
+      return;
+    }
+
+    if (data.totalHits > perPage) {
+      loadMoreBtnShow();
+    }
+
+    iziToast.success({
+      titleColor: '#fff',
+      messageColor: '#fff',
+      backgroundColor: '#28a745',
+      message: `We found ${data.totalHits} images.`,
+      iconUrl: trueSvg,
+      position: 'topRight',
     });
+
+    renderMarkup(photoEl, data.hits);
+  } catch (error) {
+    console.error(error);
+  }
+
+  hideLoader();
 
   e.target.reset();
 });
@@ -66,4 +118,12 @@ function showLoader() {
 
 function hideLoader() {
   loaderEl.classList.remove('visible');
+}
+
+function loadMoreBtnShow() {
+  loadMoreBtn.classList.remove('is-hidden');
+}
+
+function loadMoreBtnHide() {
+  loadMoreBtn.classList.add('is-hidden');
 }

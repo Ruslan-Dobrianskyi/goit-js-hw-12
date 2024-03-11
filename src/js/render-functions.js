@@ -43,8 +43,5 @@ function renderPhotos(arr) {
 
 export function renderMarkup(photoEl, arr) {
   photoEl.insertAdjacentHTML('beforeend', renderPhotos(arr));
-}
-
-export function refreshLightbox() {
   lightbox.refresh();
 }
