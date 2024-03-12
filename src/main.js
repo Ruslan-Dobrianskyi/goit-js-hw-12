@@ -2,14 +2,13 @@
 import iziToast from 'izitoast';
 // Додатковий імпорт стилів
 import 'izitoast/dist/css/iziToast.min.css';
-
 // Додатковий імпорт стилів
 import 'simplelightbox/dist/simple-lightbox.min.css';
 import { getPhotos } from './js/pixabay-api';
 import { renderMarkup } from './js/render-functions';
-import falseSvg from './img/false.svg';
-import warningSvg from './img/warning.svg';
-import trueSvg from './img/true.svg';
+import falseSvg from './img/icon.svg/false.svg';
+import warningSvg from './img/icon.svg/warning.svg';
+import trueSvg from './img/icon.svg/true.svg';
 
 const formEl = document.querySelector('.js-hero-form');
 const photoEl = document.querySelector('.photos-list');
