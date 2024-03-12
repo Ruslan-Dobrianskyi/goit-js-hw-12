@@ -19,7 +19,6 @@ const loadMoreBtn = document.querySelector('.js-load-more-btn');
 let page = 1;
 let userSearch;
 const perPage = 15;
-let photoHeight;
 
 loadMoreBtn.addEventListener('click', async e => {
   showLoader();
@@ -41,12 +40,7 @@ loadMoreBtn.addEventListener('click', async e => {
 
   hideLoader();
 
-  const slowlyPhoto = document.querySelector('.photos__image');
-  photoHeight = slowlyPhoto.getBoundingClientRect().height;
-  window.scrollBy({
-    top: 2 * photoHeight,
-    behavior: 'smooth',
-  });
+  scroll();
 });
 
 formEl.addEventListener('submit', async e => {
@@ -128,4 +122,13 @@ function loadMoreBtnShow() {
 
 function loadMoreBtnHide() {
   loadMoreBtn.classList.add('is-hidden');
+}
+
+function scroll() {
+  const slowlyPhoto = photoEl.firstElementChild;
+  const height = slowlyPhoto.getBoundingClientRect().height;
+  window.scrollBy({
+    top: height * 2,
+    behavior: 'smooth',
+  });
 }
