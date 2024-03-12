@@ -22,24 +22,29 @@ const perPage = 15;
 loadMoreBtn.addEventListener('click', async e => {
   showLoader();
   page += 1;
-  const data = await getPhotos(userSearch, page);
-  renderMarkup(photoEl, data.hits);
 
-  const lastPage = Math.ceil(data.totalHits / perPage);
+  try {
+    const data = await getPhotos(userSearch, page);
+    renderMarkup(photoEl, data.hits);
 
-  if (page === lastPage) {
-    loadMoreBtnHide();
-    iziToast.error({
-      messageColor: '#fff',
-      backgroundColor: '#ef4040',
-      iconUrl: falseSvg,
-      message: "We're sorry, but you've reached the end of search results.",
-    });
+    const lastPage = Math.ceil(data.totalHits / perPage);
+
+    if (page === lastPage) {
+      loadMoreBtnHide();
+      iziToast.error({
+        messageColor: '#fff',
+        backgroundColor: '#ef4040',
+        iconUrl: falseSvg,
+        message: "We're sorry, but you've reached the end of search results.",
+      });
+    }
+
+    hideLoader();
+
+    scroll();
+  } catch (error) {
+    console.log(error);
   }
-
-  hideLoader();
-
-  scroll();
 });
 
 formEl.addEventListener('submit', async e => {
